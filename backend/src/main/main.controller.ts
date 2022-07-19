@@ -1,9 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CreateAddressDto } from './dto/address.create.dto';
+import { CreateChildDto } from './dto/child.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
-import { CreateJobDto } from './dto/job.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
+import { ChildEntity } from './entity/child.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
@@ -32,5 +33,10 @@ export class MainController {
   @Post('passport/create')
   async createPassport(@Body() dto: CreatePassportDto): Promise<PassportEntity> {
     return await this.mainService.createPassport(dto);
+  }
+
+  @Post('child/create')
+  async createChild(@Body() dto: CreateChildDto): Promise<ChildEntity> {
+    return await this.mainService.createChild(dto);
   }
 }

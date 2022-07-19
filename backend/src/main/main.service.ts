@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/address.create.dto';
+import { CreateChildDto } from './dto/child.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
+import { ChildEntity } from './entity/child.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
@@ -17,6 +19,7 @@ export class MainService {
     @InjectRepository(CommunicationEntity) private communicationRepository: Repository<CommunicationEntity>,
     @InjectRepository(JobEntity) private jobRepository: Repository<JobEntity>,
     @InjectRepository(PassportEntity) private passportRepository: Repository<PassportEntity>,
+    @InjectRepository(ChildEntity) private childRepository: Repository<ChildEntity>,
   ) {}
 
   async createAddress(dto: CreateAddressDto): Promise<AddressEntity> {
@@ -52,5 +55,11 @@ export class MainService {
     const newPassport = new PassportEntity();
     Object.assign(newPassport, dto);
     return await this.passportRepository.save(newPassport);
+  }
+
+  async createChild(dto: CreateChildDto): Promise<ChildEntity> {
+    const newChild = new ChildEntity();
+    Object.assign(newChild, dto);
+    return await this.childRepository.save(newChild);
   }
 }
