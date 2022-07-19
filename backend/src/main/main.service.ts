@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
-import { CreateJobDto } from './dto/job.create.dto';
+import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
+import { PassportEntity } from './entity/passport.entity';
 import { IJobReq } from './interfaces/job.req.interface';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class MainService {
     @InjectRepository(AddressEntity) private addressRepository: Repository<AddressEntity>,
     @InjectRepository(CommunicationEntity) private communicationRepository: Repository<CommunicationEntity>,
     @InjectRepository(JobEntity) private jobRepository: Repository<JobEntity>,
+    @InjectRepository(PassportEntity) private passportRepository: Repository<PassportEntity>,
   ) {}
 
   async createAddress(dto: CreateAddressDto): Promise<AddressEntity> {
@@ -44,5 +46,11 @@ export class MainService {
 
     Object.assign(newJob, job);
     return await this.jobRepository.save(newJob);
+  }
+
+  async createPassport(dto: CreatePassportDto): Promise<PassportEntity> {
+    const newPassport = new PassportEntity();
+    Object.assign(newPassport, dto);
+    return await this.passportRepository.save(newPassport);
   }
 }
