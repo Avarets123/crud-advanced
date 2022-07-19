@@ -67,7 +67,7 @@ export class ClientEntity {
   @Column({ type: 'numeric', nullable: true })
   monExpenses: number;
 
-  @OneToMany(() => CommunicationEntity, (comm) => comm.id)
+  @OneToMany(() => CommunicationEntity, (comm) => comm.id, { eager: true })
   communications: CommunicationEntity[];
 
   @CreateDateColumn()
