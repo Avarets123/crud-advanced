@@ -12,7 +12,7 @@ export const typeormConfig = (): TypeOrmModuleAsyncOptions => ({
     password: config.get<string>('POSTGRES_PASSWORD'),
     database: config.get<string>('POSTGRES_DB'),
     synchronize: true,
-    entities: [__dirname + '**/entity/*.entity{.ts,.js}'],
+    entities: [__dirname + '**/*.entity{.ts,.js}'],
     logging: true,
     autoLoadEntities: true,
   }),
