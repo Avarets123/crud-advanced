@@ -7,9 +7,11 @@ import { CreateCommunicationDto } from './dto/communication.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
 import { ChildEntity } from './entity/child.entity';
+import { ClientEntity } from './entity/client.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
+import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
 
 @Injectable()
@@ -20,14 +22,19 @@ export class MainService {
     @InjectRepository(JobEntity) private jobRepository: Repository<JobEntity>,
     @InjectRepository(PassportEntity) private passportRepository: Repository<PassportEntity>,
     @InjectRepository(ChildEntity) private childRepository: Repository<ChildEntity>,
+    @InjectRepository(ClientEntity) private clientRepository: Repository<ClientEntity>,
   ) {}
 
   async createAddress(dto: CreateAddressDto): Promise<AddressEntity> {
-    return await this.addressRepository.save(dto);
+    const newAddress = new AddressEntity();
+    Object.assign(newAddress, dto);
+    return await this.addressRepository.save(newAddress);
   }
 
   async createCommunication(dto: CreateCommunicationDto): Promise<CommunicationEntity> {
-    return await this.communicationRepository.save(dto);
+    const newCommun = new CommunicationEntity();
+    Object.assign(newCommun, dto);
+    return await this.communicationRepository.save(newCommun);
   }
 
   async createJob({ job, factAddress, jurAddress: jurAddress }: IJobReq): Promise<JobEntity> {
@@ -61,5 +68,71 @@ export class MainService {
     const newChild = new ChildEntity();
     Object.assign(newChild, dto);
     return await this.childRepository.save(newChild);
+  }
+
+  async createClient({
+    client,
+    children,
+    passport,
+    livingAddress,
+    regAddress,
+    jobs,
+    communications,
+  }: IClientReq): Promise<ClientEntity> {
+    const newClient = new ClientEntity();
+    Object.assign(newClient, client);
+
+    if (regAddress) {
+      const newAddress = new AddressEntity();
+      Object.assign(newAddress, regAddress);
+      await this.addressRepository.save(newAddress);
+      newClient.regAddress = newAddress;
+    }
+
+    if (livingAddress) {
+      const newAddress = new AddressEntity();
+      Object.assign(newAddress, livingAddress);
+      await this.addressRepository.save(newAddress);
+      newClient.livingAddress = newAddress;
+    }
+
+    if (passport) {
+      const newPassport = new PassportEntity();
+      Object.assign(newPassport, passport);
+      newClient.passport = newPassport;
+      await this.passportRepository.save(newPassport);
+    }
+
+    if (children) {
+      newClient.children = [];
+      children.forEach((el) => {
+        const newChild = new ChildEntity();
+        Object.assign(newChild, el);
+        this.childRepository.save(newChild);
+        newClient.children.push(newChild);
+      });
+    }
+
+    if (jobs) {
+      newClient.jobs = [];
+      jobs.forEach((el) => {
+        const newJob = new JobEntity();
+        Object.assign(newJob, el);
+        this.jobRepository.save(newJob);
+        newClient.jobs.push(newJob);
+      });
+    }
+
+    if (communications) {
+      newClient.communications = [];
+      communications.forEach((el) => {
+        const newCommunication = new CommunicationEntity();
+        Object.assign(newCommunication, el);
+        this.communicationRepository.save(newCommunication);
+        newClient.communications.push(newCommunication);
+      });
+    }
+
+    return await this.clientRepository.save(newClient);
   }
 }

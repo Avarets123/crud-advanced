@@ -5,9 +5,11 @@ import { CreateCommunicationDto } from './dto/communication.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
 import { ChildEntity } from './entity/child.entity';
+import { ClientEntity } from './entity/client.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
+import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
 import { MainService } from './main.service';
 
@@ -38,5 +40,10 @@ export class MainController {
   @Post('child/create')
   async createChild(@Body() dto: CreateChildDto): Promise<ChildEntity> {
     return await this.mainService.createChild(dto);
+  }
+
+  @Post('client/create')
+  async createClient(@Body() dto: IClientReq): Promise<ClientEntity> {
+    return await this.mainService.createClient(dto);
   }
 }

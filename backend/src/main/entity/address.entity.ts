@@ -1,5 +1,4 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { v4 as uuid } from 'uuid';
 @Entity({ name: 'adress' })
 export class AddressEntity {
   @PrimaryColumn({ generated: 'uuid', nullable: false, readonly: true })
