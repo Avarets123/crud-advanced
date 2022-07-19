@@ -1,6 +1,6 @@
-import { communicationType } from '../entity/communication.entity';
+import { CommunicationType } from '../entity/communication.entity';
 
 export class CreateCommunicationDto {
-  type: communicationType;
+  type: CommunicationType;
   value: string;
 }

@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-export enum communicationType {
+export enum CommunicationType {
   Phone = 'мобильный телефон',
   Email = 'электронная почта',
 }
@@ -10,8 +10,8 @@ export class CommunicationEntity {
   @PrimaryColumn({ generated: 'uuid', readonly: true })
   id: string;
 
-  @Column({ type: 'enum', enum: communicationType, nullable: false })
-  type: communicationType;
+  @Column({ type: 'enum', enum: CommunicationType, nullable: false })
+  type: CommunicationType;
 
   @Column({ nullable: false })
   value: string;

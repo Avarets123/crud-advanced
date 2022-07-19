@@ -13,7 +13,7 @@ export const typeormConfig = (): TypeOrmModuleAsyncOptions => ({
     database: config.get<string>('POSTGRES_DB'),
     synchronize: true,
     entities: [__dirname + '**/*.entity{.ts,.js}'],
-    logging: true,
+    // logging: true,
     autoLoadEntities: true,
   }),
 });

@@ -1,8 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
+import { CreateJobDto } from './dto/job.create.dto';
 import { AddressEntity } from './entity/address.entity';
 import { CommunicationEntity } from './entity/communication.entity';
+import { JobEntity } from './entity/job.entity';
+import { IJobReq } from './interfaces/job.req.interface';
 import { MainService } from './main.service';
 
 @Controller()
@@ -17,5 +20,10 @@ export class MainController {
   @Post('commun/create')
   async createCommunication(@Body() dto: CreateCommunicationDto): Promise<CommunicationEntity> {
     return await this.mainService.createCommunication(dto);
+  }
+
+  @Post('job/create')
+  async createJob(@Body() dto: IJobReq): Promise<JobEntity> {
+    return await this.mainService.createJob(dto);
   }
 }
