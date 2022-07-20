@@ -5,6 +5,7 @@ import { AddressEntity } from './entity/address.entity';
 import { ClientEntity } from './entity/client.entity';
 import { ClientWithSpouseEntity } from './entity/clientWithSpouse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
+import { DeletedClientsEntity } from './entity/deletedClient.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
 import { MainController } from './main.controller';
@@ -20,6 +21,7 @@ import { MainService } from './main.service';
       ChildEntity,
       ClientEntity,
       ClientWithSpouseEntity,
+      DeletedClientsEntity,
     ]),
   ],
   controllers: [MainController],

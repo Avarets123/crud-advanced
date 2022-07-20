@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
+import { CreateClientDto } from './dto/client.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
@@ -10,7 +11,7 @@ import { ClientWithSpouseEntity } from './entity/clientWithSpouse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
-import { IClientReq } from './interfaces/client.req.interface';
+// import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
 import { MainService } from './main.service';
 
@@ -44,7 +45,7 @@ export class MainController {
   }
 
   @Post('clients')
-  async createClient(@Body() dto: IClientReq): Promise<ClientEntity | ClientWithSpouseEntity> {
+  async createClient(@Body() dto: CreateClientDto): Promise<ClientEntity | ClientWithSpouseEntity> {
     const { spouse } = dto;
 
     if (spouse) {
@@ -68,4 +69,10 @@ export class MainController {
   async getJobs(): Promise<JobEntity[]> {
     return await this.mainService.getAllJobs();
   }
+
+  // @Delete('clients/:id')
+  // async softDelete(@Param('id') id: string) {
+  //   console.log(id);
+  //   return await this.mainService.softDelete(id);
+  // }
 }

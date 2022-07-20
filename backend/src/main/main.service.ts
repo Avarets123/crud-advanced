@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
+import { CreateClientDto } from './dto/client.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
@@ -10,9 +11,10 @@ import { ChildEntity } from './entity/child.entity';
 import { ClientEntity } from './entity/client.entity';
 import { ClientWithSpouseEntity } from './entity/clientWithSpouse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
+import { DeletedClientsEntity } from './entity/deletedClient.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
-import { IClientReq } from './interfaces/client.req.interface';
+// import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
 
 @Injectable()
@@ -25,7 +27,7 @@ export class MainService {
     @InjectRepository(ChildEntity) private childRepository: Repository<ChildEntity>,
     @InjectRepository(ClientEntity) private clientRepository: Repository<ClientEntity>,
     @InjectRepository(ClientWithSpouseEntity)
-    private clientWithSponseRepository: Repository<ClientWithSpouseEntity>,
+    private clientWithSponseRepository: Repository<ClientWithSpouseEntity>, // @InjectRepository(DeletedClientsEntity) private deleteStorageRepository: Repository<DeletedClientsEntity>,
   ) {}
 
   async createAddress(dto: CreateAddressDto): Promise<AddressEntity> {
@@ -81,7 +83,7 @@ export class MainService {
     jobs,
     communications,
     ...other
-  }: IClientReq): Promise<ClientEntity> {
+  }: CreateClientDto): Promise<ClientEntity> {
     const newClient = new ClientEntity();
     Object.assign(newClient, other);
     await this.clientRepository.save(newClient);
@@ -143,7 +145,7 @@ export class MainService {
     return await this.clientRepository.save(newClient);
   }
 
-  async createClientWithSponse({ spouse, ...other }: IClientReq): Promise<ClientWithSpouseEntity> {
+  async createClientWithSponse({ spouse, ...other }: CreateClientDto): Promise<ClientWithSpouseEntity> {
     const newClientWithSponse = new ClientWithSpouseEntity();
 
     const newClient = await this.createClient(other);
@@ -169,4 +171,6 @@ export class MainService {
   async getAllJobs(): Promise<JobEntity[]> {
     return await this.jobRepository.find();
   }
+
+  // async softDelete(id: string): Promise<DeletedClientsEntity> {}
 }
