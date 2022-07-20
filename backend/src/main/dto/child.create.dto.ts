@@ -1,6 +1,8 @@
 import { IsDate, IsOptional, IsString } from 'class-validator';
 
 export class CreateChildDto {
+  id?: string;
+
   @IsString()
   @IsOptional()
   name?: string;

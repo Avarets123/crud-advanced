@@ -1,6 +1,8 @@
 import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreatePassportDto {
+  id?: string;
+
   @IsOptional()
   @IsString()
   series?: string;

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
 import { CreateClientDto } from './dto/client.create.dto';
@@ -11,13 +11,18 @@ import { ClientWithSpouseEntity } from './entity/clientWithSpouse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
-// import { IClientReq } from './interfaces/client.req.interface';
+import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
 import { MainService } from './main.service';
 
 @Controller()
 export class MainController {
   constructor(private mainService: MainService) {}
+
+  // @Patch('address/:id')
+  // async updateAddress(@Param('id') id: string, @Body() dto: CreateAddressDto): Promise<AddressEntity> {
+  //   return await this.mainService.updateAddress(id, dto);
+  // }
 
   @Post('address/create')
   async createAdress(@Body() dto: CreateAddressDto): Promise<AddressEntity> {
@@ -60,14 +65,19 @@ export class MainController {
     return await this.mainService.getAllClientOrById();
   }
 
-  @Get('client/:id')
-  async getClientById(@Param('id') id: string): Promise<ClientEntity[] | ClientEntity> {
+  @Get('client/:clientId')
+  async getClientById(@Param('clientId') id: string): Promise<ClientEntity[] | ClientEntity> {
     return await this.mainService.getAllClientOrById(id);
   }
 
   @Get('jobs')
   async getJobs(): Promise<JobEntity[]> {
     return await this.mainService.getAllJobs();
+  }
+
+  @Patch('clients/:clientId')
+  async updateClient(@Param('clientId') id: string, @Body() dto: CreateClientDto) {
+    return await this.mainService.updateClient(id, dto);
   }
 
   // @Delete('clients/:id')

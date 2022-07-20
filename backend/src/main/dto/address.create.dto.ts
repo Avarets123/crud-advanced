@@ -1,6 +1,8 @@
 import { IsDate, IsOptional, IsString } from 'class-validator';
 
 export class CreateAddressDto {
+  id?: string;
+
   @IsString()
   @IsOptional()
   zipcode: string;

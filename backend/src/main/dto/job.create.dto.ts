@@ -2,6 +2,8 @@ import { IsDate, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator'
 import { JobType } from '../entity/job.entity';
 
 export class CreateJobDto {
+  id?: string;
+
   @IsOptional()
   @IsEnum(JobType)
   type?: JobType;

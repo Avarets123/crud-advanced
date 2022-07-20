@@ -1,13 +1,15 @@
 import { IsString, IsOptional, IsDate, IsEnum, IsNumber, IsArray } from 'class-validator';
 import { TypeEducation } from '../entity/client.entity';
-// import { IClientReq } from '../interfaces/client.req.interface';
+import { IClientReq } from '../interfaces/client.req.interface';
 import { CreateAddressDto } from './address.create.dto';
 import { CreateChildDto } from './child.create.dto';
 import { CreateCommunicationDto } from './communication.create.dto';
 import { CreateJobDto } from './job.create.dto';
 import { CreatePassportDto } from './passport.create.dto';
 
-export class CreateClientDto {
+export class CreateClientDto implements IClientReq {
+  id?: string;
+
   @IsString()
   @IsOptional()
   name?: string;

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/address.create.dto';
@@ -11,10 +11,8 @@ import { ChildEntity } from './entity/child.entity';
 import { ClientEntity } from './entity/client.entity';
 import { ClientWithSpouseEntity } from './entity/clientWithSpouse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
-import { DeletedClientsEntity } from './entity/deletedClient.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
-// import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
 
 @Injectable()
@@ -27,7 +25,7 @@ export class MainService {
     @InjectRepository(ChildEntity) private childRepository: Repository<ChildEntity>,
     @InjectRepository(ClientEntity) private clientRepository: Repository<ClientEntity>,
     @InjectRepository(ClientWithSpouseEntity)
-    private clientWithSponseRepository: Repository<ClientWithSpouseEntity>, // @InjectRepository(DeletedClientsEntity) private deleteStorageRepository: Repository<DeletedClientsEntity>,
+    private clientWithSponseRepository: Repository<ClientWithSpouseEntity>,
   ) {}
 
   async createAddress(dto: CreateAddressDto): Promise<AddressEntity> {
@@ -170,6 +168,73 @@ export class MainService {
 
   async getAllJobs(): Promise<JobEntity[]> {
     return await this.jobRepository.find();
+  }
+
+  private async useUpdate<R>(dto: any, repository: Repository<R>, id?: string): Promise<R> {
+    if (id) {
+      //@ts-ignore
+      const findClient = await repository.findOneBy({ id });
+      Object.assign(findClient, dto);
+      return await repository.save(findClient);
+    }
+
+    if (dto?.length > 0) {
+      dto.forEach((el) => {
+        if (el?.id) {
+          (async function () {
+            //@ts-ignore
+            const findEntity = await repository.findOneBy({ id: el.id });
+            Object.assign(findEntity, el);
+            await repository.save(findEntity);
+          })();
+        }
+      });
+    }
+
+    if (typeof dto === 'object') {
+      if (dto?.id) {
+        //@ts-ignore
+        const findEntity = await repository.findOneBy({ id });
+        Object.assign(findEntity, dto);
+        return await repository.save(findEntity);
+      }
+    }
+  }
+
+  private async clearData(client: ClientEntity, dto: any, nameDto: string): Promise<void> {
+    if (dto === null) {
+      client[nameDto] = null;
+    }
+  }
+
+  async updateClient(id: string, dto: CreateClientDto) {
+    const { regAddress, livingAddress, passport, spouse, children, communications, jobs, ...other } = dto;
+
+    let findClient = await this.clientRepository.findOneBy({ id });
+
+    if (!findClient) {
+      throw new HttpException(`Клиент с таким id: ${id} не существует`, HttpStatus.BAD_REQUEST);
+    }
+
+    findClient = await this.useUpdate<ClientEntity>(other, this.clientRepository, id);
+    await this.useUpdate<AddressEntity>(regAddress, this.addressRepository);
+    await this.useUpdate<AddressEntity>(livingAddress, this.addressRepository);
+    await this.useUpdate<PassportEntity>(passport, this.passportRepository);
+    await this.useUpdate<ChildEntity>(children, this.childRepository);
+    await this.useUpdate<CommunicationEntity>(communications, this.communicationRepository);
+    await this.useUpdate<JobEntity>(jobs, this.jobRepository);
+
+    await this.clearData(findClient, regAddress, 'regAddress');
+    await this.clearData(findClient, livingAddress, 'livingAddress');
+    await this.clearData(findClient, passport, 'passport');
+
+    await this.clientRepository.save(findClient);
+
+    if (spouse) {
+      await this.updateClient(spouse.id, spouse);
+    }
+
+    return 'updated';
   }
 
   // async softDelete(id: string): Promise<DeletedClientsEntity> {}
