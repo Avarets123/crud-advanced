@@ -3,13 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
-import { CreateClientWithSponseDto } from './dto/clientWithSponse.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
 import { ChildEntity } from './entity/child.entity';
 import { ClientEntity } from './entity/client.entity';
-import { ClientWithSponseEntity } from './entity/clientWithSponse.entity';
+import { ClientWithSpouseEntity } from './entity/clientWithSpouse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
@@ -25,8 +24,8 @@ export class MainService {
     @InjectRepository(PassportEntity) private passportRepository: Repository<PassportEntity>,
     @InjectRepository(ChildEntity) private childRepository: Repository<ChildEntity>,
     @InjectRepository(ClientEntity) private clientRepository: Repository<ClientEntity>,
-    @InjectRepository(ClientWithSponseEntity)
-    private clientWithSponseRepository: Repository<ClientWithSponseEntity>,
+    @InjectRepository(ClientWithSpouseEntity)
+    private clientWithSponseRepository: Repository<ClientWithSpouseEntity>,
   ) {}
 
   async createAddress(dto: CreateAddressDto): Promise<AddressEntity> {
@@ -75,16 +74,17 @@ export class MainService {
   }
 
   async createClient({
-    client,
     children,
     passport,
     livingAddress,
     regAddress,
     jobs,
     communications,
+    ...other
   }: IClientReq): Promise<ClientEntity> {
     const newClient = new ClientEntity();
-    Object.assign(newClient, client);
+    Object.assign(newClient, other);
+    await this.clientRepository.save(newClient);
 
     if (regAddress) {
       const newAddress = new AddressEntity();
@@ -109,30 +109,33 @@ export class MainService {
 
     if (children) {
       newClient.children = [];
-      children.forEach((el) => {
+      children.forEach(async (el) => {
         const newChild = new ChildEntity();
         Object.assign(newChild, el);
-        this.childRepository.save(newChild);
+        newChild.parent = newClient.id;
+        await this.childRepository.save(newChild);
         newClient.children.push(newChild);
       });
     }
 
     if (jobs) {
       newClient.jobs = [];
-      jobs.forEach((el) => {
+      jobs.forEach(async (el) => {
         const newJob = new JobEntity();
         Object.assign(newJob, el);
-        this.jobRepository.save(newJob);
+        newJob.person = newClient.id;
+        await this.jobRepository.save(newJob);
         newClient.jobs.push(newJob);
       });
     }
 
     if (communications) {
       newClient.communications = [];
-      communications.forEach((el) => {
+      communications.forEach(async (el) => {
         const newCommunication = new CommunicationEntity();
         Object.assign(newCommunication, el);
-        this.communicationRepository.save(newCommunication);
+        newCommunication.person = newClient.id;
+        await this.communicationRepository.save(newCommunication);
         newClient.communications.push(newCommunication);
       });
     }
@@ -140,27 +143,27 @@ export class MainService {
     return await this.clientRepository.save(newClient);
   }
 
-  async createClientWithSponse({
-    client,
-    sponse,
-  }: CreateClientWithSponseDto): Promise<ClientWithSponseEntity> {
-    const newClientWithSponse = new ClientWithSponseEntity();
+  async createClientWithSponse({ spouse, ...other }: IClientReq): Promise<ClientWithSpouseEntity> {
+    const newClientWithSponse = new ClientWithSpouseEntity();
 
-    const newClient = await this.createClient(client);
-    const newSponse = await this.createClient(sponse);
+    const newClient = await this.createClient(other);
+    const newSponse = await this.createClient(spouse);
 
     newClientWithSponse.client = newClient;
-    newClientWithSponse.sponse = newSponse;
+    newClientWithSponse.spouse = newSponse;
 
     return await this.clientWithSponseRepository.save(newClientWithSponse);
   }
 
   async getAllClientOrById(id?: string): Promise<ClientEntity | ClientEntity[]> {
     if (id) {
-      // return await this.clientRepository.findOneBy({ id });
+      return await this.clientRepository.findOneBy({ id });
     }
 
-    return await this.clientRepository.find();
+    return await this.clientRepository.find({
+      relations: { children: true },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async getAllJobs(): Promise<JobEntity[]> {

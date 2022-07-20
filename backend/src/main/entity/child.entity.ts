@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { ClientEntity } from './client.entity';
 
 @Entity('child')
 export class ChildEntity {
@@ -16,4 +17,8 @@ export class ChildEntity {
 
   @Column({ nullable: true })
   dob: Date;
+
+  @ManyToOne(() => ClientEntity, (client) => client.id)
+  @JoinColumn()
+  parent: string;
 }

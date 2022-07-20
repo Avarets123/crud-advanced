@@ -15,12 +15,12 @@ import { JobEntity } from './job.entity';
 import { PassportEntity } from './passport.entity';
 
 export enum TypeEducation {
-  Secondary = 'Среднее',
-  SecondarySpecial = 'Среднеен специальное',
-  IncompleteHigher = 'Незаконченное высшее',
-  Hogher = 'Высшее',
-  TwoOrMoreHigher = 'Два и более высших образований',
-  AcademicDegree = 'Академическая степень',
+  secondary = 'Среднее',
+  secondarySpecial = 'Среднеен специальное',
+  incompleteHigher = 'Незаконченное высшее',
+  hogher = 'Высшее',
+  twoOrMoreHigher = 'Два и более высших образований',
+  academicDegree = 'Академическая степень',
 }
 
 @Entity('client')
@@ -40,14 +40,12 @@ export class ClientEntity {
   @Column({ nullable: true })
   dob: Date;
 
-  @OneToOne(() => PassportEntity, (passport) => passport.id, {
-    eager: true,
-    createForeignKeyConstraints: false,
-  })
+  @OneToOne(() => PassportEntity, (passport) => passport.id, { eager: true })
   @JoinColumn()
   passport: PassportEntity;
 
-  @OneToMany(() => ChildEntity, (child) => child.id, { eager: true })
+  @OneToMany(() => ChildEntity, (child) => child.parent, { eager: true })
+  @JoinColumn()
   children: ChildEntity[];
 
   @OneToOne(() => AddressEntity, (address) => address.id, { eager: true })
@@ -58,7 +56,7 @@ export class ClientEntity {
   @JoinColumn()
   regAddress: AddressEntity;
 
-  @OneToMany(() => JobEntity, (job) => job.id, { eager: true })
+  @OneToMany(() => JobEntity, (job) => job.person, { eager: true })
   jobs: JobEntity[];
 
   @Column({ nullable: true })
@@ -73,7 +71,7 @@ export class ClientEntity {
   @Column({ type: 'numeric', nullable: true })
   monExpenses: number;
 
-  @OneToMany(() => CommunicationEntity, (comm) => comm.id, { eager: true })
+  @OneToMany(() => CommunicationEntity, (comm) => comm.person, { eager: true })
   communications: CommunicationEntity[];
 
   @CreateDateColumn()

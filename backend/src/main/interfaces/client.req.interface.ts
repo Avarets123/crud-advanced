@@ -5,12 +5,12 @@ import { CreateCommunicationDto } from '../dto/communication.create.dto';
 import { CreateJobDto } from '../dto/job.create.dto';
 import { CreatePassportDto } from '../dto/passport.create.dto';
 
-export interface IClientReq {
-  client: CreateClientDto;
+export interface IClientReq extends CreateClientDto {
   children?: CreateChildDto[];
   passport?: CreatePassportDto;
   livingAddress?: CreateAddressDto;
   regAddress?: CreateAddressDto;
   jobs?: CreateJobDto[];
   communications?: CreateCommunicationDto[];
+  spouse?: Omit<IClientReq, 'spouse'>;
 }

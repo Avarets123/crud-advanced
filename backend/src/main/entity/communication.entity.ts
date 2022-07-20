@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { ClientEntity } from './client.entity';
 
 export enum CommunicationType {
   Phone = 'мобильный телефон',
@@ -15,4 +16,7 @@ export class CommunicationEntity {
 
   @Column({ nullable: false })
   value: string;
+
+  @ManyToOne(() => ClientEntity, (client) => client.id)
+  person: string;
 }

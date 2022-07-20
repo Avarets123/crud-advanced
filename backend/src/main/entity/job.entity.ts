@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AddressEntity } from './address.entity';
+import { ClientEntity } from './client.entity';
 
 export enum JobType {
   Main = 'Основная работа',
@@ -51,4 +52,7 @@ export class JobEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => ClientEntity, (client) => client.id)
+  person: string;
 }
