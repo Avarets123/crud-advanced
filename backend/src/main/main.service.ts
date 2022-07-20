@@ -3,11 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
+import { CreateClientWithSponseDto } from './dto/clientWithSponse.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
 import { ChildEntity } from './entity/child.entity';
 import { ClientEntity } from './entity/client.entity';
+import { ClientWithSponseEntity } from './entity/clientWithSponse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
@@ -23,6 +25,8 @@ export class MainService {
     @InjectRepository(PassportEntity) private passportRepository: Repository<PassportEntity>,
     @InjectRepository(ChildEntity) private childRepository: Repository<ChildEntity>,
     @InjectRepository(ClientEntity) private clientRepository: Repository<ClientEntity>,
+    @InjectRepository(ClientWithSponseEntity)
+    private clientWithSponseRepository: Repository<ClientWithSponseEntity>,
   ) {}
 
   async createAddress(dto: CreateAddressDto): Promise<AddressEntity> {
@@ -134,5 +138,20 @@ export class MainService {
     }
 
     return await this.clientRepository.save(newClient);
+  }
+
+  async createClientWithSponse({
+    client,
+    sponse,
+  }: CreateClientWithSponseDto): Promise<ClientWithSponseEntity> {
+    const newClientWithSponse = new ClientWithSponseEntity();
+
+    const newClient = await this.createClient(client);
+    const newSponse = await this.createClient(sponse);
+
+    newClientWithSponse.client = newClient;
+    newClientWithSponse.sponse = newSponse;
+
+    return await this.clientWithSponseRepository.save(newClientWithSponse);
   }
 }
