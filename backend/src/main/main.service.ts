@@ -154,4 +154,16 @@ export class MainService {
 
     return await this.clientWithSponseRepository.save(newClientWithSponse);
   }
+
+  async getAllClientOrById(id?: string): Promise<ClientEntity | ClientEntity[]> {
+    if (id) {
+      // return await this.clientRepository.findOneBy({ id });
+    }
+
+    return await this.clientRepository.find();
+  }
+
+  async getAllJobs(): Promise<JobEntity[]> {
+    return await this.jobRepository.find();
+  }
 }

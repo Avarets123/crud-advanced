@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } fro
 
 @Entity('passport')
 export class PassportEntity {
-  @PrimaryColumn({ generated: 'uuid', readonly: true, nullable: false })
+  @PrimaryColumn({ generated: 'uuid', type: 'uuid', readonly: true, nullable: false })
   id: string;
 
   @Column({ nullable: true })

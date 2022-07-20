@@ -3,7 +3,7 @@ import { ClientEntity } from './client.entity';
 
 @Entity('clientWithSponse')
 export class ClientWithSponseEntity {
-  @PrimaryColumn({ generated: 'uuid' })
+  @PrimaryColumn({ generated: 'uuid', type: 'uuid' })
   id: string;
 
   @OneToOne(() => ClientEntity, (client) => client.id, { nullable: false, eager: true })

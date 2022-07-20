@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('child')
 export class ChildEntity {
-  @PrimaryColumn({ generated: 'uuid' })
+  @PrimaryColumn({ generated: 'uuid', type: 'uuid' })
   id: string;
 
   @Column({ nullable: true })

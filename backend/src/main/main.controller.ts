@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
 import { CreateClientWithSponseDto } from './dto/clientWithSponse.create.dto';
@@ -53,4 +53,16 @@ export class MainController {
   async createClientWithSponse(@Body() dto: CreateClientWithSponseDto): Promise<ClientWithSponseEntity> {
     return await this.mainService.createClientWithSponse(dto);
   }
+
+  @Get('clients')
+  async getAllClient(): Promise<ClientEntity[] | ClientEntity> {
+    return await this.mainService.getAllClientOrById();
+  }
+
+  @Get('jobs')
+  async getJobs(): Promise<JobEntity[]> {
+    return await this.mainService.getAllJobs();
+  }
 }
+
+console.log('8688966e-ce59-44a5-8144-c51d8710b6c3'.split('-').join(''));

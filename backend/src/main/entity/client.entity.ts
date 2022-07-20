@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryColumn,
@@ -24,7 +25,7 @@ export enum TypeEducation {
 
 @Entity('client')
 export class ClientEntity {
-  @PrimaryColumn({ generated: 'uuid' })
+  @PrimaryColumn({ generated: 'uuid', type: 'uuid' })
   id: string;
 
   @Column({ nullable: true })
@@ -39,16 +40,22 @@ export class ClientEntity {
   @Column({ nullable: true })
   dob: Date;
 
-  @OneToOne(() => PassportEntity, { eager: true })
+  @OneToOne(() => PassportEntity, (passport) => passport.id, {
+    eager: true,
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn()
   passport: PassportEntity;
 
   @OneToMany(() => ChildEntity, (child) => child.id, { eager: true })
   children: ChildEntity[];
 
-  @OneToOne(() => AddressEntity, { eager: true })
+  @OneToOne(() => AddressEntity, (address) => address.id, { eager: true })
+  @JoinColumn()
   livingAddress: AddressEntity;
 
-  @OneToOne(() => AddressEntity, { eager: true })
+  @OneToOne(() => AddressEntity, (address) => address.id, { eager: true })
+  @JoinColumn()
   regAddress: AddressEntity;
 
   @OneToMany(() => JobEntity, (job) => job.id, { eager: true })

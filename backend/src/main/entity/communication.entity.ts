@@ -7,7 +7,7 @@ export enum CommunicationType {
 
 @Entity({ name: 'communication' })
 export class CommunicationEntity {
-  @PrimaryColumn({ generated: 'uuid', readonly: true })
+  @PrimaryColumn({ generated: 'uuid', type: 'uuid', readonly: true })
   id: string;
 
   @Column({ type: 'enum', enum: CommunicationType, nullable: false })

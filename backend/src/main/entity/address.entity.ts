@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 @Entity({ name: 'adress' })
 export class AddressEntity {
-  @PrimaryColumn({ generated: 'uuid', nullable: false, readonly: true })
+  @PrimaryColumn({ generated: 'uuid', type: 'uuid', nullable: false, readonly: true })
   id: string;
 
   @Column({ nullable: true })
