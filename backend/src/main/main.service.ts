@@ -15,6 +15,7 @@ import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
 import { IJobReq } from './interfaces/job.req.interface';
+import { IQueryParam } from './interfaces/query.interface';
 
 @Injectable()
 export class MainService {
@@ -156,7 +157,10 @@ export class MainService {
     return await this.clientWithSponseRepository.save(newClientWithSponse);
   }
 
-  async getAllClientOrById(id?: string) {
+  async getAllClientOrById(
+    id?: string,
+    query?: IQueryParam,
+  ): Promise<ClientEntity | ClientEntity[] | string> {
     if (id) {
       const client = await this.clientRepository
         .createQueryBuilder('client')
@@ -173,6 +177,9 @@ export class MainService {
 
       return client ? client : 'Данный пользователь был удален';
     }
+
+    const { limit, page, search, sortBy, sortDir } = query;
+
     const clients = this.clientRepository
       .createQueryBuilder('client')
       .leftJoinAndSelect('client.passport', 'passport')
@@ -181,8 +188,27 @@ export class MainService {
       .leftJoinAndSelect('client.jobs', 'job')
       .leftJoinAndSelect('client.children', 'child')
       .leftJoinAndSelect('client.communications', 'communication')
-      .andWhere('client.deleted = false')
-      .orderBy('client.createdAt', 'DESC');
+      .andWhere('client.deleted = false');
+
+    if (sortBy) {
+      if (sortDir === 'ASC') {
+        clients.orderBy(`client.${sortBy}`, 'ASC');
+      }
+
+      clients.orderBy(`client.${sortBy}`, 'DESC');
+    }
+
+    if (!sortBy) {
+      clients.orderBy('client.createdAt', 'DESC');
+    }
+
+    if (search) {
+      clients.andWhere('client.name LIKE :name', { name: `%${search}%` });
+    }
+
+    if (page) {
+      clients.offset(+page * 10);
+    }
 
     return await clients.getMany();
   }
@@ -297,14 +323,14 @@ export class MainService {
     );
     await this.clientRepository.save(findClient);
 
-    if (spouse) {
-      await this.updateClient(spouse.id, spouse);
-    }
+    // if (spouse) {
+    //   await this.updateClient(spouse.id, spouse);
+    // }
 
     return 'updated';
   }
 
-  async softDelete(id: string) {
+  async softDelete(id: string): Promise<string> {
     const hasClient = await this.clientRepository.findOneBy({ id });
 
     if (!hasClient) {

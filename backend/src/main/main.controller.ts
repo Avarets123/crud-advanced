@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
 import { CreateClientDto } from './dto/client.create.dto';
@@ -13,6 +13,7 @@ import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
 import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
+import { IQueryParam } from './interfaces/query.interface';
 import { MainService } from './main.service';
 
 @Controller()
@@ -56,12 +57,13 @@ export class MainController {
   }
 
   @Get('clients')
-  async getAllClient() {
-    return await this.mainService.getAllClientOrById();
+  async getAllClient(@Query() query: IQueryParam): Promise<string | ClientEntity[] | ClientEntity> {
+    console.log(query);
+    return await this.mainService.getAllClientOrById(null, query);
   }
 
   @Get('client/:clientId')
-  async getClientById(@Param('clientId') id: string) {
+  async getClientById(@Param('clientId') id: string): Promise<string | ClientEntity[] | ClientEntity> {
     return await this.mainService.getAllClientOrById(id);
   }
 
@@ -71,13 +73,12 @@ export class MainController {
   }
 
   @Patch('clients/:clientId')
-  async updateClient(@Param('clientId') id: string, @Body() dto: CreateClientDto) {
+  async updateClient(@Param('clientId') id: string, @Body() dto: CreateClientDto): Promise<string> {
     return await this.mainService.updateClient(id, dto);
   }
 
-  @Delete('clients/:id')
-  async softDelete(@Param('id') id: string) {
-    console.log(id);
+  @Delete('clients/:clientId')
+  async softDelete(@Param('clientId') id: string): Promise<string> {
     return await this.mainService.softDelete(id);
   }
 }
