@@ -64,4 +64,6 @@ export class CreateClientDto implements IClientReq {
 
   @IsOptional()
   spouse?: Omit<CreateClientDto, 'spouse'>;
+
+  deleted?: boolean;
 }

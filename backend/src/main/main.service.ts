@@ -5,6 +5,7 @@ import { CreateAddressDto } from './dto/address.create.dto';
 import { CreateChildDto } from './dto/child.create.dto';
 import { CreateClientDto } from './dto/client.create.dto';
 import { CreateCommunicationDto } from './dto/communication.create.dto';
+import { CreateJobDto } from './dto/job.create.dto';
 import { CreatePassportDto } from './dto/passport.create.dto';
 import { AddressEntity } from './entity/address.entity';
 import { ChildEntity } from './entity/child.entity';
@@ -155,24 +156,48 @@ export class MainService {
     return await this.clientWithSponseRepository.save(newClientWithSponse);
   }
 
-  async getAllClientOrById(id?: string): Promise<ClientEntity | ClientEntity[]> {
+  async getAllClientOrById(id?: string) {
     if (id) {
-      return await this.clientRepository.findOneBy({ id });
-    }
+      const client = await this.clientRepository
+        .createQueryBuilder('client')
+        .leftJoinAndSelect('client.passport', 'passport')
+        .leftJoinAndSelect('client.regAddress', 'regAddress')
+        .leftJoinAndSelect('client.livingAddress', 'livingAddress')
+        .leftJoinAndSelect('client.jobs', 'job')
+        .leftJoinAndSelect('client.children', 'child')
+        .leftJoinAndSelect('client.communications', 'communication')
+        .andWhere('client.deleted = false')
+        .orderBy('client.createdAt', 'DESC')
+        .andWhere('client.id = :id', { id })
+        .getOne();
 
-    return await this.clientRepository.find({
-      relations: { children: true },
-      order: { createdAt: 'DESC' },
-    });
+      return client ? client : 'Данный пользователь был удален';
+    }
+    const clients = this.clientRepository
+      .createQueryBuilder('client')
+      .leftJoinAndSelect('client.passport', 'passport')
+      .leftJoinAndSelect('client.regAddress', 'regAddress')
+      .leftJoinAndSelect('client.livingAddress', 'livingAddress')
+      .leftJoinAndSelect('client.jobs', 'job')
+      .leftJoinAndSelect('client.children', 'child')
+      .leftJoinAndSelect('client.communications', 'communication')
+      .andWhere('client.deleted = false')
+      .orderBy('client.createdAt', 'DESC');
+
+    return await clients.getMany();
   }
 
   async getAllJobs(): Promise<JobEntity[]> {
     return await this.jobRepository.find();
   }
 
-  private async useUpdate<R>(dto: any, repository: Repository<R>, id?: string): Promise<R> {
+  private async useUpdateById<R, D extends { id?: string; length?: number; forEach?: (el: any) => void }>(
+    dto: D,
+    repository: Repository<R>,
+    id?: string,
+  ): Promise<R> {
     if (id) {
-      //@ts-ignore
+      // @ts-ignore
       const findClient = await repository.findOneBy({ id });
       Object.assign(findClient, dto);
       return await repository.save(findClient);
@@ -201,6 +226,22 @@ export class MainService {
     }
   }
 
+  private async useUpdateWithoutId<D extends { id?: string }, R extends { id: string }>(
+    client: ClientEntity,
+    dto: D,
+    entity: R,
+    repository: Repository<R>,
+    namePropertyClient: string,
+  ) {
+    if (!dto?.id && dto) {
+      const newEntity = entity;
+      Object.assign(newEntity, dto);
+      await repository.save(newEntity);
+
+      client[namePropertyClient] = newEntity.id;
+    }
+  }
+
   private async clearData(client: ClientEntity, dto: any, nameDto: string): Promise<void> {
     if (dto === null) {
       client[nameDto] = null;
@@ -216,18 +257,44 @@ export class MainService {
       throw new HttpException(`Клиент с таким id: ${id} не существует`, HttpStatus.BAD_REQUEST);
     }
 
-    findClient = await this.useUpdate<ClientEntity>(other, this.clientRepository, id);
-    await this.useUpdate<AddressEntity>(regAddress, this.addressRepository);
-    await this.useUpdate<AddressEntity>(livingAddress, this.addressRepository);
-    await this.useUpdate<PassportEntity>(passport, this.passportRepository);
-    await this.useUpdate<ChildEntity>(children, this.childRepository);
-    await this.useUpdate<CommunicationEntity>(communications, this.communicationRepository);
-    await this.useUpdate<JobEntity>(jobs, this.jobRepository);
+    findClient = await this.useUpdateById<ClientEntity, CreateClientDto>(other, this.clientRepository, id);
+    await this.useUpdateById<AddressEntity, CreateAddressDto>(regAddress, this.addressRepository);
+    await this.useUpdateById<AddressEntity, CreateAddressDto>(livingAddress, this.addressRepository);
+    await this.useUpdateById<PassportEntity, CreatePassportDto>(passport, this.passportRepository);
+    await this.useUpdateById<ChildEntity, CreateChildDto[]>(children, this.childRepository);
+    await this.useUpdateById<CommunicationEntity, CreateCommunicationDto[]>(
+      communications,
+      this.communicationRepository,
+    );
+    await this.useUpdateById<JobEntity, CreateJobDto[]>(jobs, this.jobRepository);
 
     await this.clearData(findClient, regAddress, 'regAddress');
     await this.clearData(findClient, livingAddress, 'livingAddress');
     await this.clearData(findClient, passport, 'passport');
 
+    await this.useUpdateWithoutId<CreateAddressDto, AddressEntity>(
+      findClient,
+      regAddress,
+      new AddressEntity(),
+      this.addressRepository,
+      'regAddress',
+    );
+
+    await this.useUpdateWithoutId<CreateAddressDto, AddressEntity>(
+      findClient,
+      livingAddress,
+      new AddressEntity(),
+      this.addressRepository,
+      'livingAddress',
+    );
+
+    await this.useUpdateWithoutId<CreatePassportDto, PassportEntity>(
+      findClient,
+      passport,
+      new PassportEntity(),
+      this.passportRepository,
+      'passport',
+    );
     await this.clientRepository.save(findClient);
 
     if (spouse) {
@@ -237,5 +304,16 @@ export class MainService {
     return 'updated';
   }
 
-  // async softDelete(id: string): Promise<DeletedClientsEntity> {}
+  async softDelete(id: string) {
+    const hasClient = await this.clientRepository.findOneBy({ id });
+
+    if (!hasClient) {
+      throw new HttpException('Такой клиент не  зарегистрирован', HttpStatus.BAD_REQUEST);
+    }
+
+    hasClient.deleted = true;
+    await this.clientRepository.save(hasClient);
+
+    return 'Клиент был перемещен в архив и в скором времени будет удален';
+  }
 }

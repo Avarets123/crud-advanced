@@ -19,11 +19,6 @@ import { MainService } from './main.service';
 export class MainController {
   constructor(private mainService: MainService) {}
 
-  // @Patch('address/:id')
-  // async updateAddress(@Param('id') id: string, @Body() dto: CreateAddressDto): Promise<AddressEntity> {
-  //   return await this.mainService.updateAddress(id, dto);
-  // }
-
   @Post('address/create')
   async createAdress(@Body() dto: CreateAddressDto): Promise<AddressEntity> {
     return await this.mainService.createAddress(dto);
@@ -61,12 +56,12 @@ export class MainController {
   }
 
   @Get('clients')
-  async getAllClient(): Promise<ClientEntity[] | ClientEntity> {
+  async getAllClient() {
     return await this.mainService.getAllClientOrById();
   }
 
   @Get('client/:clientId')
-  async getClientById(@Param('clientId') id: string): Promise<ClientEntity[] | ClientEntity> {
+  async getClientById(@Param('clientId') id: string) {
     return await this.mainService.getAllClientOrById(id);
   }
 
@@ -80,9 +75,9 @@ export class MainController {
     return await this.mainService.updateClient(id, dto);
   }
 
-  // @Delete('clients/:id')
-  // async softDelete(@Param('id') id: string) {
-  //   console.log(id);
-  //   return await this.mainService.softDelete(id);
-  // }
+  @Delete('clients/:id')
+  async softDelete(@Param('id') id: string) {
+    console.log(id);
+    return await this.mainService.softDelete(id);
+  }
 }

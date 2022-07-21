@@ -79,4 +79,7 @@ export class ClientEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'boolean', default: false })
+  deleted: boolean;
 }
