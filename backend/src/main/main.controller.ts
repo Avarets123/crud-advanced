@@ -11,7 +11,6 @@ import { ClientWithSpouseEntity } from './entity/clientWithSpouse.entity';
 import { CommunicationEntity } from './entity/communication.entity';
 import { JobEntity } from './entity/job.entity';
 import { PassportEntity } from './entity/passport.entity';
-import { IClientReq } from './interfaces/client.req.interface';
 import { IJobReq } from './interfaces/job.req.interface';
 import { IQueryParam } from './interfaces/query.interface';
 import { MainService } from './main.service';
@@ -62,14 +61,9 @@ export class MainController {
     return await this.mainService.getAllClientOrById(null, query);
   }
 
-  @Get('client/:clientId')
+  @Get('clients/:clientId')
   async getClientById(@Param('clientId') id: string): Promise<string | ClientEntity[] | ClientEntity> {
     return await this.mainService.getAllClientOrById(id);
-  }
-
-  @Get('jobs')
-  async getJobs(): Promise<JobEntity[]> {
-    return await this.mainService.getAllJobs();
   }
 
   @Patch('clients/:clientId')
